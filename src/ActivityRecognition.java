@@ -5,6 +5,7 @@ import com.espertech.esper.client.*;
 import com.espertech.esperio.AdapterInputSource;
 import com.espertech.esperio.csv.CSVInputAdapter;
 //import com.espertech.esper.util.ObjectInputStreamWithTCCL
+import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 import java.util.Random; 
 import java.util.Date;
@@ -176,7 +177,26 @@ public class ActivityRecognition implements Runnable{
 		AdapterInputSource source= new AdapterInputSource("DAY_1.csv");
 		
 		EPAdministrator epAdmin= epService.getEPAdministrator();
-		EPStatement cepStatement1=epAdmin.createEPL("select ph1 from SensorEvent(activity2=17)");
+		/*EPStatement cepPattern=epAdmin.createPattern("every (a=SensorEvent(ir1=1)"
+				+ "->"
+				+ "b=SensorEvent(so1=1)"
+				+ "where timer:within(1000 ))");
+				*/
+		
+		EPStatement cepStatement1=epAdmin.createEPL("select c.activity1,c.activity2 from pattern ["
+				+ "every(a=SensorEvent(ir1=1)->c=SensorEvent(fo1=1 or fo2=1 or so1=1)"
+				+ "where timer:within(1 sec))]" );
+				
+				
+				
+	//	EPStatement cepStatement1=epAdmin.createEPL("select ir1,so1 from SensorEvent(activity1=12 or activity2=12).win:time(1 sec)" );
+		
+		
+		/*
+		EPStatement cepStatement1=epAdmin.createEPL("select activity1,activity2 from "
+				+ "SensorEvent(so1=1).win:length(8000)"
+				+ "output snapshot every 8000 events");
+		*/
 		
 		cepStatement1.addListener(new UpdateListener(){
 			public void update(EventBean[] newEvents, EventBean[] oldEvents) {
@@ -186,8 +206,23 @@ public class ActivityRecognition implements Runnable{
 			}
 		});
 		
-		 (new CSVInputAdapter(epService, source,"SensorEvent")).start();
-
+		//CSVInputAdapter input1= new CSVInputAdapter(epService, source,"SensorEvent");
+		//input1.start();
+		
+		
+		
+		// /*
+		//3600 sec/1 sec
+		CSVInputAdapterSpec spec= new CSVInputAdapterSpec(new AdapterInputSource("DAY_1.csv"),"SensorEvent");
+		spec.setEventsPerSec(1000);
+		//spec.setTimestampColumn("timestamp");
+		//spec.setUsingEngineThread(true);
+		
+		CSVInputAdapter inputAdapter= new CSVInputAdapter(epService,spec);
+		inputAdapter.start();
+		//Thread.Sleep(2000);
+		
+//*/
 	}
 }
 	
