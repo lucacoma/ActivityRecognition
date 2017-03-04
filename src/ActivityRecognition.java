@@ -110,15 +110,14 @@ public class ActivityRecognition {
 				}
 			}
 			
-			public static void GenerateSensorEvent(EPRuntime cepRT)
+		//	public static void GenerateSensorEvent(EPRuntime cepRT)
 			
-			create dataflow FIleSInkSApleFlor
 			////////////////////////////////////////
 			
-			public static void main(String[] args){
+		//	public static void main(String[] args){
 				
 				
-			}
+		//	}
 			
 			
 	}//ActivityRecognition		     
