@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="/Applications/eclipse/lib/esper-5.5.0/esperio-socket-5.5.0.jar"/>
 	<classpathentry kind="lib" path="/Applications/eclipse/lib/esper-5.5.0/esperio-springjms-5.5.0.jar"/>
 	<classpathentry kind="lib" path="/Applications/eclipse/lib/esper-5.5.0/esperio-stax-5.5.0.jar"/>
+	<classpathentry kind="lib" path="/Applications/eclipse/lib/opencsv-3.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,14 +1,25 @@
 //http://andreamconnell.blogspot.it/2012/02/working-with-esper-problems-and.html
 
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+
 import com.espertech.esper.client.*;
+import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esperio.AdapterInputSource;
 import com.espertech.esperio.csv.CSVInputAdapter;
-//import com.espertech.esper.util.ObjectInputStreamWithTCCL
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
+import com.opencsv.CSVReader;
 
-import java.util.Random; 
+import java.util.Random;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.PrintWriter;
 import java.util.Date;
+import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,8 +65,8 @@ public class ActivityRecognition implements Runnable{
 		/*18*/int		di2;		//	Distance			Water Closet
 		/*19*/int		te1;		//	Temperature  		Kitchen
 		/*20*/int		fo3;		//	Force Sensor 		Bed
-			  double 	activity1;
-			  double    activity2;
+			  int 	activity1;
+			  int    activity2;
 			  
 			  
 		//NO CONSTRUCTOR IS NEEDED??
@@ -67,7 +78,7 @@ public class ActivityRecognition implements Runnable{
 		public SensorEvent(int ph1, int ph2, int ir1, int fo1,int fo2,
 							int di3,int di4,  int ph3,  int ph4, int ph5, int ph6, 
 							int co1, int co2, int co3, int so1, int so2, int di1, 
-							int	di2, int te1, int fo3, double activity1, double activity2 ){    
+							int	di2, int te1, int fo3, int activity1, int activity2 ){    
 			 
                this.ph1=ph1;		
                this.ph2=ph2;		
@@ -114,8 +125,8 @@ public class ActivityRecognition implements Runnable{
 		     public int getDi2() { return di2;}
 		     public int getTe1() { return te1;}
 		     public int getFo3() { return fo3;}
-		     public double getActivity1() {return activity1;}
-		     public double getActivity2() {return activity2;}
+		     public int getActivity1() {return activity1;}
+		     public int getActivity2() {return activity2;}
 		     
 		     
 		     public void setPh1(int ph1) { this.ph1=ph1;}
@@ -138,8 +149,8 @@ public class ActivityRecognition implements Runnable{
 		     public void setDi2(int di2) { this.di2=di2;}
 		     public void setTe1(int te1) { this.te1=te1;}
 		     public void setFo3(int fo3) { this.fo3=fo3;}
-		     public void setActivity1(double activity1) {this.activity1=activity1;}
-		     public void setActivity2(double activity2) {this.activity2=activity2;}
+		     public void setActivity1(int activity1) {this.activity1=activity1;}
+		     public void setActivity2(int activity2) {this.activity2=activity2;}
 		     
 		     //SETTERS
 		
@@ -158,62 +169,165 @@ public class ActivityRecognition implements Runnable{
 		Logger.getRootLogger().addAppender(appender);
 		Logger.getRootLogger().setLevel((Level) Level.WARN);
 		
+
 		new ActivityRecognition().run();
 	}
 	
 	
 	
 	
-	public ActivityRecognition(){		
+	public ActivityRecognition(){	
+		
 	}
 	
+	
+	
+	//this function
+	public static int countOccurrences(String day,int activity) throws IOException{ 
+		int count=0; //here we count the activity of our choice
+		 //the activity we want to detect
+		String [] nextLine;
+		CSVReader reader=new  CSVReader(new FileReader("src/"+day));
+		
+		nextLine= reader.readNext(); //we need to skip the first line since it contains the header
+		
+		while((nextLine= reader.readNext())!=null){
+			//we need to be sure that the activity strings contain only 2 chars i.e. the number of the activity
+				if (nextLine[20].length()>2){
+					nextLine[20]=nextLine[20].substring(0, 1);
+				}
+				
+				if (nextLine[21].length()>2){
+					nextLine[21]=nextLine[21].substring(0, 1);
+				}
+					//here we do the count
+				if(Integer.parseInt(nextLine[20])==activity || Integer.parseInt(nextLine[21])==activity){
+					count +=1;
+				}//if ends
+		}//while ends
+		//System.out.println("occurrences of activity"+activity +"are=" +count);
+		reader.close();
+		return count;
+	}
+	
+	
+	
 	public void run(){
+		
+		String day="DAY_2.csv";  //this is the day where we want to check  ////////////////////////////////////////////////////////////////////////////////////
+		//watching_tv->12 having_shower->14 preparing_breakfast->4
+		int activitynumber=3; //need to set the activity that we want to check	  /////////////////////////////////////////////////////////////////////////////////////
+		String queryhavingshower="select a.activity1,a.activity2 from pattern[every(a=SensorEvent(co2=1))->b=SensorEvent(co3=1)]"; //DETECTS WHEN ONE OF THE RESIDENTS IS HAVING A SHOWER activity:14
+		String querywatchingtv= "select c.activity1,c.activity2 from pattern ["
+				+ "every(a=SensorEvent(ir1=1)->c=SensorEvent(fo1=1 or fo2=1 or so1=1)"
+				+ "where timer:within(1 sec))]" ; //DETECTS WHEN ONE OF THE RESIDENTS IS WATCHING TV activity:12
+		
+		String querypreparingbreakfast="select b.activity1,b.activity2 "
+				+ "from pattern["
+				+ "every(a=SensorEvent(fo3=1 and ph2=1))-> every(b=SensorEvent(ph3=1)) ].win:time(3 sec)";// where timer:within(2 sec) ]";//
+			
+				//	+ "-> SensorEvent(te1=1)"
+			//	+ "where timer:within(70))"
+			/*
+				+ "or "
+				+ "(every c=SensorEvent(te1=1)"
+				+ "-> SensorEvent(ph3=1)"
+				+ "where timer:within(70)))"
+				+ "and "
+				+ "SensorEvent(so2=1)"
+				+ "where timer:within(300)"
+				+ "]";
+		*/
+		String query;
+		
+		query=querypreparingbreakfast;
+		
 		Configuration configuration = new Configuration();
 		configuration.addEventType(SensorEvent.class);
 		
 		EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(configuration);
 		epService.initialize();
 		
-		AdapterInputSource source= new AdapterInputSource("DAY_1.csv");
+	//	AdapterInputSource source= new AdapterInputSource("DAY_2345.csv");
 		
 		EPAdministrator epAdmin= epService.getEPAdministrator();
-		/*EPStatement cepPattern=epAdmin.createPattern("every (a=SensorEvent(ir1=1)"
-				+ "->"
-				+ "b=SensorEvent(so1=1)"
-				+ "where timer:within(1000 ))");
-				*/
-		
-		EPStatement cepStatement1=epAdmin.createEPL("select c.activity1,c.activity2 from pattern ["
-				+ "every(a=SensorEvent(ir1=1)->c=SensorEvent(fo1=1 or fo2=1 or so1=1)"
-				+ "where timer:within(1 sec))]" );
 				
-				
-				
-	//	EPStatement cepStatement1=epAdmin.createEPL("select ir1,so1 from SensorEvent(activity1=12 or activity2=12).win:time(1 sec)" );
+		//Co2->bathroom door Co3->Shower Cabinet door
+		EPStatement cepStatement2=epAdmin.createEPL(query);
 		
 		
-		/*
-		EPStatement cepStatement1=epAdmin.createEPL("select activity1,activity2 from "
-				+ "SensorEvent(so1=1).win:length(8000)"
-				+ "output snapshot every 8000 events");
-		*/
-		
-		cepStatement1.addListener(new UpdateListener(){
+		cepStatement2.addListener(new UpdateListener(){
+			int count=0; //correctly detected activities
+			int counttotal=0; //total detected activities
+			
+			////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			public void update(EventBean[] newEvents, EventBean[] oldEvents) {
 				EventBean event = newEvents[0];
+				try {
+					FileWriter fw = new FileWriter("./output.csv");
 				
-				System.out.println("Found Match:"+event.getUnderlying() );
+				//EventBeanUtility.printEvent(event)->	Format the event and return a string representation.
+				String output= EventBeanUtility.printEvent(event);
+				StringBuilder outputparsed = new StringBuilder();
+				counttotal+=1; //each time we receive an event we have to update counttotal->number of total
+				char prevchar='b'; //important to not initialize it as digit or =
+				int i=0;
+				String activitytodetect=Integer.toString(activitynumber);
+				boolean firstactivityread=false;
+				
+				StringBuilder activity1=new StringBuilder();
+				StringBuilder activity2=new StringBuilder();
+				
+				// it works only with strings of the form: "#0  a.activity1 = 14\n"
+				//											+"#1  a.activity2 = 2";
+				for (i=0;i<output.length();i++){	
+					if(output.charAt(i)=='\n' && firstactivityread==false){
+						outputparsed.append(','); //we do this in order to separate the two activities
+						firstactivityread=true;
+					}//end first if	
+					if(Character.isDigit(output.charAt(i))==true && (prevchar==' ' || Character.isDigit(prevchar))){
+						outputparsed.append(output.charAt(i));
+						if (firstactivityread==false){ //read first activity
+							activity1.append(output.charAt(i));
+						}
+						if (firstactivityread==true){ //read second activity
+							activity2.append(output.charAt(i));
+						}	
+					}//end second if
+					prevchar=output.charAt(i);
+				} //for ends here
+				if(Objects.equals(activity1.toString(),activitytodetect)|| Objects.equals(activity2.toString(),activitytodetect))
+				{count +=1;}
+				System.out.println("activity1= "+ activity1.toString()+ "activity2= "+ activity2.toString());
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+				StringBuilder csvline= new StringBuilder();
+				
+				csvline.append(activity1.toString());
+				csvline.append(",");
+				csvline.append(activity2.toString());
+				csvline.append(",");
+				csvline.append(String.valueOf(count));
+				csvline.append(",");
+				csvline.append(String.valueOf(counttotal));
+				csvline.append("\n");
+				
+				fw.write(csvline.toString());
+				fw.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
 			}
+				
+				
 		});
+		//close the opened file
+
 		
-		//CSVInputAdapter input1= new CSVInputAdapter(epService, source,"SensorEvent");
-		//input1.start();
-		
-		
-		
-		// /*
 		//3600 sec/1 sec
-		CSVInputAdapterSpec spec= new CSVInputAdapterSpec(new AdapterInputSource("DAY_1.csv"),"SensorEvent");
+		CSVInputAdapterSpec spec= new CSVInputAdapterSpec(new AdapterInputSource(day),"SensorEvent");
 		spec.setEventsPerSec(1000);
 		//spec.setTimestampColumn("timestamp");
 		//spec.setUsingEngineThread(true);
@@ -222,7 +336,50 @@ public class ActivityRecognition implements Runnable{
 		inputAdapter.start();
 		//Thread.Sleep(2000);
 		
-//*/
+		
+		
+		///////////NOW PRECISION AND RECALL AND EVERYTHING
+		String [] nextLine;
+		CSVReader reader2;
+		
+		try {
+			reader2 = new  CSVReader(new FileReader("output.csv")); //read the file where we put the count results
+			nextLine= reader2.readNext(); //we need to skip the first line since it contains the header
+			reader2.close();
+			// the csv file has the form:
+			//  last_activity1_read,last_activity1_read,total_correct_activities_detected,total_activities_detected
+			int totalcorrectactivities; 
+			int totalactivitiesdetected;
+			int totalactivitiesday;
+			
+			totalcorrectactivities=Integer.parseInt(nextLine[2]);
+			totalactivitiesdetected=Integer.parseInt(nextLine[3]);
+			totalactivitiesday=ActivityRecognition.countOccurrences(day,activitynumber);
+			
+			System.out.println("total detected activities="+totalactivitiesdetected);
+			System.out.println("total correct detected activities="+totalcorrectactivities);
+			System.out.println("total activities of the same kind in the day= "+totalactivitiesday);
+			System.out.println("precision="+ ((double)totalcorrectactivities/(int)totalactivitiesdetected +"%" ));
+			System.out.println("recall="+ ((double)totalcorrectactivities/(int)totalactivitiesday) +"%" );
+
+			
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	
+		
+		
 	}
+	
+	
+	
+	
+	
+	
+	
+	
 }
 	
