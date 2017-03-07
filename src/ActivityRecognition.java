@@ -67,6 +67,7 @@ public class ActivityRecognition implements Runnable{
 		/*20*/int		fo3;		//	Force Sensor 		Bed
 			  int 	activity1;
 			  int    activity2;
+			  int 	timestamp;
 			  
 			  
 		//NO CONSTRUCTOR IS NEEDED??
@@ -78,7 +79,7 @@ public class ActivityRecognition implements Runnable{
 		public SensorEvent(int ph1, int ph2, int ir1, int fo1,int fo2,
 							int di3,int di4,  int ph3,  int ph4, int ph5, int ph6, 
 							int co1, int co2, int co3, int so1, int so2, int di1, 
-							int	di2, int te1, int fo3, int activity1, int activity2 ){    
+							int	di2, int te1, int fo3, int activity1, int activity2 ,int timestamp){    
 			 
                this.ph1=ph1;		
                this.ph2=ph2;		
@@ -102,6 +103,7 @@ public class ActivityRecognition implements Runnable{
                this.fo3=fo3;
                this.activity1=activity1;
                this.activity2=activity2;
+               this.timestamp=timestamp;
 			   }
 		          
 			  //GETTERS
@@ -127,6 +129,8 @@ public class ActivityRecognition implements Runnable{
 		     public int getFo3() { return fo3;}
 		     public int getActivity1() {return activity1;}
 		     public int getActivity2() {return activity2;}
+		     public int getTimestamp() {return timestamp;}
+
 		     
 		     
 		     public void setPh1(int ph1) { this.ph1=ph1;}
@@ -151,7 +155,8 @@ public class ActivityRecognition implements Runnable{
 		     public void setFo3(int fo3) { this.fo3=fo3;}
 		     public void setActivity1(int activity1) {this.activity1=activity1;}
 		     public void setActivity2(int activity2) {this.activity2=activity2;}
-		     
+		     public void setTimestamp(int timestamp) {this.timestamp=timestamp;}
+
 		     //SETTERS
 		
 		//     @Override public String toString(){
@@ -214,33 +219,58 @@ public class ActivityRecognition implements Runnable{
 	
 	public void run(){
 		
-		String day="DAY_2.csv";  //this is the day where we want to check  ////////////////////////////////////////////////////////////////////////////////////
+		String day="DAY_3tmstp.csv";  //this is the day where we want to check  ////////////////////////////////////////////////////////////////////////////////////
 		//watching_tv->12 having_shower->14 preparing_breakfast->4
-		int activitynumber=3; //need to set the activity that we want to check	  /////////////////////////////////////////////////////////////////////////////////////
+		int activitynumber=12; //need to set the activity that we want to check	  /////////////////////////////////////////////////////////////////////////////////////
 		String queryhavingshower="select a.activity1,a.activity2 from pattern[every(a=SensorEvent(co2=1))->b=SensorEvent(co3=1)]"; //DETECTS WHEN ONE OF THE RESIDENTS IS HAVING A SHOWER activity:14
 		String querywatchingtv= "select c.activity1,c.activity2 from pattern ["
 				+ "every(a=SensorEvent(ir1=1)->c=SensorEvent(fo1=1 or fo2=1 or so1=1)"
 				+ "where timer:within(1 sec))]" ; //DETECTS WHEN ONE OF THE RESIDENTS IS WATCHING TV activity:12
 		
+		String querywatchingtv2="select b.activity1,b.activity2 "
+									+ "from pattern["
+									+ "every(b=SensorEvent(ir1=1)->c=SensorEvent(fo1=1 or fo2=1))]";
+		
+		
+		
+		String aqueryhavingbreakfast="select b.activity1,b.activity2 "
+				+ "from pattern["																	//temperature of the kitchen
+				+ "a=SensorEvent(ph3=1 and timestamp<43000)"
+				+ "->"
+				+ "every(b=SensorEvent(timestamp<43000 and (te1=1 or so2=1 or di3=1 or di4=1)))"
+				+ "->"
+				+ "c=SensorEvent((di3=1 or di4=1)and timestamp<43000)]"; //where timer:within(1);
+		
 		String querypreparingbreakfast="select b.activity1,b.activity2 "
 				+ "from pattern["
-				+ "every(a=SensorEvent(fo3=1 and ph2=1))-> every(b=SensorEvent(ph3=1)) ].win:time(3 sec)";// where timer:within(2 sec) ]";//
-			
-				//	+ "-> SensorEvent(te1=1)"
-			//	+ "where timer:within(70))"
-			/*
-				+ "or "
-				+ "(every c=SensorEvent(te1=1)"
-				+ "-> SensorEvent(ph3=1)"
-				+ "where timer:within(70)))"
-				+ "and "
-				+ "SensorEvent(so2=1)"
-				+ "where timer:within(300)"
-				+ "]";
-		*/
-		String query;
+				+ "a=SensorEvent(fo3=1)"
+				+ "-> every(b=SensorEvent(ph3=1 and timestamp < 43000))"
+				+ "where timer:within(1)]";
 		
-		query=querypreparingbreakfast;
+		String queryhavingbreakfast="select c.activity1,c.activity2 "
+				+ "from pattern["
+				+ "a=SensorEvent(fo3=1)"
+				+ "-> every(b=SensorEvent(ph3=1 and timestamp < 43000))"
+				+ "where timer:within(1)->every(c=SensorEvent((di3=1 or di4=1) and timestamp < 43000))]";
+				
+					//->d=SensorEvent(timestamp<43000)  
+		
+		String querypreparinglunch="select b.activity1,b.activity2 "
+						+ "from pattern["
+						+ "a=SensorEvent(ph3=1 and timestamp > 43000)"
+						+ "-> every(b=SensorEvent(te1=1 and timestamp between 43000 and 60000))]";
+						
+		
+		
+		String querypreparingdinner="select b.activity1,b.activity2 "
+				+ "from pattern["
+				+ "a=SensorEvent(ph3=1 and timestamp > 67000)"
+				+ "-> every(b=SensorEvent(te1=1 and timestamp between 67000 and 83000))]";
+		
+	
+		String query=querywatchingtv;
+		
+		
 		
 		Configuration configuration = new Configuration();
 		configuration.addEventType(SensorEvent.class);
