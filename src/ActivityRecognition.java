@@ -222,6 +222,7 @@ public class ActivityRecognition implements Runnable{
 		String day="DAY_3tmstp.csv";  //this is the day where we want to check  ////////////////////////////////////////////////////////////////////////////////////
 		//watching_tv->12 having_shower->14 preparing_breakfast->4
 		int activitynumber=12; //need to set the activity that we want to check	  /////////////////////////////////////////////////////////////////////////////////////
+		
 		String queryhavingshower="select a.activity1,a.activity2 from pattern[every(a=SensorEvent(co2=1))->b=SensorEvent(co3=1)]"; //DETECTS WHEN ONE OF THE RESIDENTS IS HAVING A SHOWER activity:14
 		String querywatchingtv= "select c.activity1,c.activity2 from pattern ["
 				+ "every(a=SensorEvent(ir1=1)->c=SensorEvent(fo1=1 or fo2=1 or so1=1)"
