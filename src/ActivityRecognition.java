@@ -190,7 +190,7 @@ public class ActivityRecognition implements Runnable{
 /**/			+ "-> every(b=SensorEventHouseA(ph3=1 and timestamp < 43000))"                                                                                                                                     /**/
 /**/			+ "where timer:within(1)->every(c=SensorEventHouseA((di3=1 or di4=1) and timestamp < 43000))]";                                                                                                    /**/
 /**/			                                                                                                                                                                                                   /**/
-/**/				//->d=SensorEventHouseA(timestamp<43000)                                                                                                                                                       /**/
+/**/				                                                                                                                                                  /**/
 /**/	                                                                                                                                                                                                           /**/
 /**/	String querypreparinglunchA="select b.activity1,b.activity2 "                                                                                                                                               /**/
 /**/					+ "from pattern["                                                                                                                                                                          /**/
