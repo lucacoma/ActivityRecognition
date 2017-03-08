@@ -126,9 +126,9 @@ public class ActivityRecognition implements Runnable{
 		 */
 		
 		//			/House(A/B)_CSV/DAY_numbert.csv
-		String day="/HouseB_CSV/DAY_8t.csv";  //this is the day where we want to check 
-		int activitynumber=14; //need to set the activity that we want to check	  
-		String house="B"; //CAN BE A or B
+		String day="/HouseA_CSV/DAY_13t.csv";  //this is the day where we want to check 
+		int activitynumber=12; //need to set the activity that we want to check	  
+		String house="A"; //CAN BE A or B
 		
 		/*ACTIVITIED
 		 ID	ACTIVITY
@@ -170,8 +170,15 @@ public class ActivityRecognition implements Runnable{
 /**/	String querywatchingtv2="select b.activity1,b.activity2 "                                                                                                                                                  /**/
 /**/								+ "from pattern["                                                                                                                                                              /**/
 /**/								+ "every(b=SensorEventHouseA(ir1=1)->c=SensorEventHouseA(fo1=1 or fo2=1))]";                                                                                                   /**/
-/**/	                                                                                                                                                                                                           /**/
-/**/	                                                                                                                                                                                                           /**/
+/**/	                    //ultima aggiunta:                                                                                                                                                                                       /**/
+/**/	 String querywatchingtv3 ="select b.activity1,b.activity2 "
+		+ "from pattern["
+		+ "every(a=SensorEventHouseA(ir1=1)) -> b=SensorEventHouseA(fo1=1 or fo2=1 or so1=1) and c=SensorEventHouseA(ir1=1)"
+		+ "and " 
+		+ "every(d=SensorEventHouseA(fo1=1 or fo2=1 or so1=1) "
+		+ "and e=SensorEventHouseA(ir1=1))"
+		+ "-> f=SensorEventHouseA(fo1=1 or fo2=1 or so1=1)"
+		+ "]";                                                                                                                                                                                                         /**/
 /**/	                                                                                                                                                                                                           /**/
 /**/	String aqueryhavingbreakfast="select b.activity1,b.activity2 "                                                                                                                                             /**/
 /**/			+ "from pattern["																	//temperature of the kitchen                                                                                   /**/
@@ -263,7 +270,7 @@ public class ActivityRecognition implements Runnable{
 /**/                                                                                               
 /**///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
-		String query=queryhavingshower2;//THIS IS THE QUERY WE WANT TO PERFORM
+		String query=querywatchingtv3;//THIS IS THE QUERY WE WANT TO PERFORM
 		
 		
 		
