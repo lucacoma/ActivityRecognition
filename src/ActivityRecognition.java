@@ -120,8 +120,8 @@ public class ActivityRecognition implements Runnable{
 		 */
 		
 		//			/House(A/B)_CSV/DAY_numbert.csv
-		String day="/HouseB_CSV/DAY_12t.csv";  //this is the day where we want to check 
-		int activitynumber=8; //need to set the activity that we want to check	  
+		String day="/HouseB_CSV/DAY_8.csv";  //this is the day where we want to check 
+		int activitynumber=4; //need to set the activity that we want to check	  
 		String house="B"; //CAN BE A or B
 		
 		/*ACTIVITIED
@@ -176,13 +176,7 @@ public class ActivityRecognition implements Runnable{
 		+ "-> f=SensorEventHouseA(fo1=1 or fo2=1 or so1=1)"
 		+ "]";                                                                                                                                                                                                         /**/
 /**/	                                                                                                                                                                                                           /**/
-/**/	String aqueryhavingbreakfast="select b.activity1,b.activity2 "                                                                                                                                             /**/
-/**/			+ "from pattern["																	//temperature of the kitchen                                                                                   /**/
-/**/			+ "a=SensorEventHouseA(ph3=1 and timestamp<43000)"                                                                                                                                                 /**/
-/**/			+ "->"                                                                                                                                                                                             /**/
-/**/			+ "every(b=SensorEventHouseA(timestamp<43000 and (te1=1 or so2=1 or di3=1 or di4=1)))"                                                                                                             /**/
-/**/			+ "->"                                                                                                                                                                                             /**/
-/**/			+ "c=SensorEventHouseA((di3=1 or di4=1)and timestamp<43000)]"; //where timer:within(1);                                                                                                            /**/
+/**/	                                                                                                           /**/
 /**/	                                                                                                                                                                                                           /**/
 /**/	String querypreparingbreakfastA="select b.activity1,b.activity2 "                                                                                                                                           /**/
 /**/			+ "from pattern["                                                                                                                                                                                  /**/
@@ -230,7 +224,11 @@ public class ActivityRecognition implements Runnable{
 /**/                                                                                               
 /**/                  
 /**/                  
-/**/                  
+/**/      			String queryHavingBreakB="select b.activity1,b.activity2 "                                                                                                                                             /**/
+		                                      + "from pattern["																	                                                                                   /**/
+		                                      + "every(b=SensorEventHouseB(timestamp<43000 and (ph1=1 or so2=1 or fo1=1 or fo2=1)))"                                                                                                             /**/
+		                                      + "->"                                                                                                                                                                                             /**/
+		                                      + "c=SensorEventHouseB((fo1=1 or fo2=1)and timestamp<43000)]";            
 /**/                  
 /**/                  
 /**/                  
@@ -266,7 +264,7 @@ public class ActivityRecognition implements Runnable{
 /**/                                                                                               
 /**///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
-		String query=querywatchingtvB;//THIS IS THE QUERY WE WANT TO PERFORM
+		String query=queryHavingBreakB;//THIS IS THE QUERY WE WANT TO PERFORM
 		
 		
 		
