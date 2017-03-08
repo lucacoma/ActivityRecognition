@@ -1,9 +1,9 @@
 //http://andreamconnell.blogspot.it/2012/02/working-with-esper-problems-and.html
 
 
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.event.EventBeanUtility;
@@ -12,13 +12,7 @@ import com.espertech.esperio.csv.CSVInputAdapter;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 import com.opencsv.CSVReader;
 
-import java.util.Random;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.PrintWriter;
-import java.util.Date;
-import java.util.Map;
+
 import java.util.Objects;
 
 import org.apache.commons.logging.Log;
@@ -126,9 +120,9 @@ public class ActivityRecognition implements Runnable{
 		 */
 		
 		//			/House(A/B)_CSV/DAY_numbert.csv
-		String day="/HouseA_CSV/DAY_13t.csv";  //this is the day where we want to check 
-		int activitynumber=12; //need to set the activity that we want to check	  
-		String house="A"; //CAN BE A or B
+		String day="/HouseB_CSV/DAY_12t.csv";  //this is the day where we want to check 
+		int activitynumber=8; //need to set the activity that we want to check	  
+		String house="B"; //CAN BE A or B
 		
 		/*ACTIVITIED
 		 ID	ACTIVITY
@@ -162,16 +156,18 @@ public class ActivityRecognition implements Runnable{
 		 */
 		
 ///////////QUERIES HOUSE1////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/**/		String queryhavingshower="select a.activity1,a.activity2 from pattern[every(a=SensorEventHouseA(co2=1))->b=SensorEventHouseA(co3=1)]"; //DETECTS WHEN ONE OF THE RESIDENTS IS HAVING A SHOWER activity:/**/
-/**/	String querywatchingtv= "select c.activity1,c.activity2 from pattern ["                                                                                                                                    /**/
+/**/		String queryhavingshowerA="select a.activity1,a.activity2 from pattern[every(a=SensorEventHouseA(co2=1))->b=SensorEventHouseA(co3=1)]"; //DETECTS WHEN ONE OF THE RESIDENTS IS HAVING A SHOWER activity:/**/
+/**/	
+			//bisogna scegliere la migliore per watching tv, forse è la 2
+			String querywatchingtvA1= "select c.activity1,c.activity2 from pattern ["                                                                                                                                    /**/
 /**/			+ "every(a=SensorEventHouseA(ir1=1)->c=SensorEventHouseA(fo1=1 or fo2=1 or so1=1)"                                                                                                                 /**/
 /**/			+ "where timer:within(1 sec))]" ; //DETECTS WHEN ONE OF THE RESIDENTS IS WATCHING TV activity:12                                                                                                   /**/
 /**/	                                                                                                                                                                                                           /**/
-/**/	String querywatchingtv2="select b.activity1,b.activity2 "                                                                                                                                                  /**/
+/**/	String querywatchingtvA2="select b.activity1,b.activity2 "                                                                                                                                                  /**/
 /**/								+ "from pattern["                                                                                                                                                              /**/
 /**/								+ "every(b=SensorEventHouseA(ir1=1)->c=SensorEventHouseA(fo1=1 or fo2=1))]";                                                                                                   /**/
 /**/	                    //ultima aggiunta:                                                                                                                                                                                       /**/
-/**/	 String querywatchingtv3 ="select b.activity1,b.activity2 "
+/**/	 String querywatchingtvA3 ="select b.activity1,b.activity2 "
 		+ "from pattern["
 		+ "every(a=SensorEventHouseA(ir1=1)) -> b=SensorEventHouseA(fo1=1 or fo2=1 or so1=1) and c=SensorEventHouseA(ir1=1)"
 		+ "and " 
@@ -188,13 +184,13 @@ public class ActivityRecognition implements Runnable{
 /**/			+ "->"                                                                                                                                                                                             /**/
 /**/			+ "c=SensorEventHouseA((di3=1 or di4=1)and timestamp<43000)]"; //where timer:within(1);                                                                                                            /**/
 /**/	                                                                                                                                                                                                           /**/
-/**/	String querypreparingbreakfast="select b.activity1,b.activity2 "                                                                                                                                           /**/
+/**/	String querypreparingbreakfastA="select b.activity1,b.activity2 "                                                                                                                                           /**/
 /**/			+ "from pattern["                                                                                                                                                                                  /**/
 /**/			+ "a=SensorEventHouseA(fo3=1)"                                                                                                                                                                     /**/
 /**/			+ "-> every(b=SensorEventHouseA(ph3=1 and timestamp < 43000))"                                                                                                                                     /**/
 /**/			+ "where timer:within(1)]";                                                                                                                                                                        /**/
 /**/	                                                                                                                                                                                                           /**/
-/**/	String queryhavingbreakfast="select c.activity1,c.activity2 "                                                                                                                                              /**/
+/**/	String queryhavingbreakfastA="select c.activity1,c.activity2 "                                                                                                                                              /**/
 /**/			+ "from pattern["                                                                                                                                                                                  /**/
 /**/			+ "a=SensorEventHouseA(fo3=1)"                                                                                                                                                                     /**/
 /**/			+ "-> every(b=SensorEventHouseA(ph3=1 and timestamp < 43000))"                                                                                                                                     /**/
@@ -202,19 +198,19 @@ public class ActivityRecognition implements Runnable{
 /**/			                                                                                                                                                                                                   /**/
 /**/				//->d=SensorEventHouseA(timestamp<43000)                                                                                                                                                       /**/
 /**/	                                                                                                                                                                                                           /**/
-/**/	String querypreparinglunch="select b.activity1,b.activity2 "                                                                                                                                               /**/
+/**/	String querypreparinglunchA="select b.activity1,b.activity2 "                                                                                                                                               /**/
 /**/					+ "from pattern["                                                                                                                                                                          /**/
 /**/					+ "a=SensorEventHouseA(ph3=1 and timestamp > 43000)"                                                                                                                                       /**/
 /**/					+ "-> every(b=SensorEventHouseA(te1=1 and timestamp between 43000 and 60000))]";                                                                                                           /**/
 /**/					                                                                                                                                                                                           /**/
 /**/	                                                                                                                                                                                                           /**/
 /**/	                                                                                                                                                                                                           /**/
-/**/	String querypreparingdinner="select b.activity1,b.activity2 "                                                                                                                                              /**/
+/**/	String querypreparingdinnerA="select b.activity1,b.activity2 "                                                                                                                                              /**/
 /**/			+ "from pattern["                                                                                                                                                                                  /**/
 /**/			+ "a=SensorEventHouseA(ph3=1 and timestamp > 67000)"                                                                                                                                               /**/
 /**/			+ "-> every(b=SensorEventHouseA(te1=1 and timestamp between 67000 and 83000))]";     
 /**/	
-		String querytoileting="select a.activity1,a.activity2 "
+		String querytoiletingA="select a.activity1,a.activity2 "
 				+ "from pattern["
 				+ "every(a=SensorEventHouseA(co2=1))->b=SensorEventHouseA(di2=1)"
 				+ "where timer:within(1)"
@@ -226,15 +222,11 @@ public class ActivityRecognition implements Runnable{
 
 ///////////QUERIES HOUSE2////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**//**/
-/**/    String queryhavingshower2="select b.activity1,b.activity2 from pattern[every(a=SensorEventHouseB(so1=1))->every(b=SensorEventHouseB(co6=1))]";                                                                                          
+/**/    String queryhavingshowerB="select b.activity1,b.activity2 from pattern[every(a=SensorEventHouseB(so1=1))->every(b=SensorEventHouseB(co6=1))]";                                                                                          
 /**/                                                                                               
 /**/                                                                                            
-/**/      				String queryhavingbreakfast2="select c.activity1,c.activity2 "                                                                                                                                              /**/
-		/**/			+ "from pattern["                                                                                                                                                                                  /**/
-		/**/			+ "a=SensorEventHouseA(fo3=1)"                                                                                                                                                                     /**/
-		/**/			+ "-> every(b=SensorEventHouseA(ph3=1 and timestamp < 43000))"                                                                                                                                     /**/
-/**/			+ "where timer:within(1)->every(c=SensorEventHouseA((di3=1 or di4=1) and timestamp < 43000))]";                                                                                           
-/**/                                                                                               
+/**/    String querywatchingtvB="select activity1,activity2 "                                                                                                                                              /**/
+/**/							+ "from SensorEventHouseB(pr1=1 or pr2=1)";                                                         
 /**/                                                                                               
 /**/                  
 /**/                  
@@ -274,7 +266,7 @@ public class ActivityRecognition implements Runnable{
 /**/                                                                                               
 /**///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
-		String query=querywatchingtv3;//THIS IS THE QUERY WE WANT TO PERFORM
+		String query=querywatchingtvB;//THIS IS THE QUERY WE WANT TO PERFORM
 		
 		
 		
