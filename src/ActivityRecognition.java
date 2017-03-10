@@ -12,7 +12,6 @@ import com.opencsv.CSVReader;
 
 
 import java.util.Objects;
-import java.util.Scanner;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,13 +20,13 @@ import org.apache.log4j.SimpleLayout;
 import org.apache.log4j.Level; 
 import org.apache.log4j.Logger;
 
-import java.io.InputStream;
+
 
                   
 public class ActivityRecognition implements Runnable{
     private static final Log log = LogFactory.getLog(ActivityRecognition.class);
 	
-    
+	
 	public static void main(String[] args)
 	{
 		SimpleLayout layout= new SimpleLayout();
@@ -63,20 +62,15 @@ public class ActivityRecognition implements Runnable{
 	}
 	
 	
+	
+	
 	public ActivityRecognition(){	
 		
 	}
 	
 	
-	/***********************************************************************
-	* Method: countOccurrences				  					  		   *
-	* Description: this returns  the number of events labeled 			   *
-	* with the number of the chosen activity during the chosen day         *
-	*             	  												       * 
-	*		   														       *
-	* Parameters: String day, int activity						 					       *
-	* Returns:	int count						  						   *
-	***********************************************************************/
+	
+	//this returns  the number of events labeled with the number of the chosen activity during the chosen day:
 	
 	public static int countOccurrences(String day,int activity) throws IOException{ 
 		
@@ -108,253 +102,140 @@ public class ActivityRecognition implements Runnable{
 	}
 	
 	
-	// the menus	
-	
-	public static String insertDay(){
-		Scanner in = new Scanner(System.in);
-		String day = null;
-		// Display the menu
-		System.out.println("AVAILABLE DAYS FOR HOUSE A");
-		System.out.println("d1 -> DAY_1 on House A");
-        System.out.println("d3 -> DAY_3 on House A");
-        System.out.println("d5 -> DAY_5 on House A");
-        System.out.println("d13 -> DAY_13 on House A");
-        System.out.println("\nAVAILABLE DAYS FOR HOUSE B");
-        System.out.println("d2 -> DAY_2 on House B");
-        System.out.println("d4 -> DAY_4 on House B");
-        System.out.println("d6 -> DAY_6 on House B");
-        System.out.println("d8 -> DAY_8 on House B");
-        System.out.println("d10 -> DAY_10 on House B");
-  
-
-        System.out.println("\nSTEP TWO)  Please enter the day you want to test for the prevoiusly selected house:");
-        
-        //Get user's choice
-        String choice=in.nextLine();
-         
-        //Display the title of the chosen module
-        switch (choice) {
-            case "d1": 
-            	day = "/HouseA_CSV/DAY_1.csv"; 
-            	break;
-            case "d3": 
-            	day = "/HouseA_CSV/DAY_3.csv"; 
-            	break;
-            case "d5": 
-            	day = "/HouseA_CSV/DAY_5.csv"; 
-            	break;
-            case "d13": 
-            	day = "/HouseA_CSV/DAY_13.csv"; 
-            	break;
-            case "d2": 
-            	day = "/HouseB_CSV/DAY_2.csv"; 
-            	break;
-            case "d4": 
-            	day = "/HouseB_CSV/DAY_4.csv"; 
-            	break;
-            case "d6": 
-            	day = "/HouseB_CSV/DAY_6.csv"; 
-            	break;
-            case "d8": 
-            	day = "/HouseB_CSV/DAY_8.csv"; 
-            	break;
-            case "d10": 
-            	day = "/HouseB_CSV/DAY_10.csv"; 
-            	break;
-            default: System.out.println("Invalid choice");
-        }//end of switch
-        System.out.println("You selected the file: " + day);
-        System.out.println("\n");
-		return day;
-		}
-	
-	
-	public static int insertActivity(){
-		Scanner in = new Scanner(System.in);
-		int activity = 0;
-		
-		System.out.println("3\t Preparing Breakfast");
-		System.out.println("4\t Having Breakfast ");
-		System.out.println("5\t Preparing Lunch (for house A only)");
-		System.out.println("7\t Preparing Dinner (for house A only)");
-		System.out.println("12\t Watching TV");
-		System.out.println("15\t Toileting");
-		System.out.println("14\t Having Shower");
-		System.out.println("20\t Shaving (for house A only)");
-
-        System.out.println("\nSTEP THREE) Please select the label's activity (Ground Truth) you want to evaluate:");
-        
-        int choice=in.nextInt();
-             
-        switch (choice) {
-            case 3: 
-            	activity = 3; 
-            	break;
-            case 4: 
-            	activity = 4; 
-            	break;
-            case 5: 
-            	activity = 5; 
-            	break;
-            case 7: 
-            	activity = 7; 
-            	break;
-            case 12: 
-            	activity = 12; 
-            	break;
-            case 14: 
-            	activity = 14; 
-            	break;
-            case 21: 
-            	activity = 21; 
-            	break;
-            	
-            default: System.out.println("Invalid choice");
-        }//end of switch
-        System.out.println("You selected the activity: " + activity);
-        System.out.println("\n");
-		return activity;
-		}
-	
-	
-	
-	public static String insertHouse(){
-		Scanner in = new Scanner(System.in);
-		String house = null;
-		// Display the menu
-		System.out.println("a -> HOUSE A");
-		System.out.println("b -> HOUSE B");
-
-        System.out.println("\nSTEP ONE) Please enter tha HOUSE you want to test ('a' or 'b')");
-        
-        String choice=in.nextLine();
-         
-        switch (choice) {
-            case "a": 
-            	house = "A"; 
-            	break;
-            case "b": 
-            	house = "B"; 
-            	break;
-            default: System.out.println("Invalid choice");
-        }//end of switch
-        System.out.println("You selected HOUSE: " + house);
-        System.out.println("\n");
-		return house;
-		}
-	        
-	        
-	
-	public static String selectQuery(){
-		Scanner in = new Scanner(System.in);
-		String query = null;
-		// Display the menu
-		System.out.println("HOUSE A available queries");
-		System.out.println("q1\t HouseA -> Preparing Breakfast (label: 3)");
-		System.out.println("q2\t HouseA -> Having Breakfast (label: 4)");
-		System.out.println("q3\t HouseA -> Preparing Lunch (label: 5)");
-		System.out.println("q4\t HouseA -> Preparing Dinner (label: 7)");
-		System.out.println("q5\t HouseA -> Haning Shower (label: 14)");
-		System.out.println("q6\t HouseA -> Watching TV (label: 12)");
-		System.out.println("q7\t HouseA -> Toileting (label: 15)");
-		System.out.println("q8\t HouseA -> Shaving (label: 20)");
-		System.out.println("\nHOUSE B available queries");
-		System.out.println("q9\t HouseB -> Having Breakfast (label: 4)");
-		System.out.println("q10\t HouseB -> Watching TV (label: 12)");
-		System.out.println("q11\t HouseB -> Having Shower (label: 14)");
-        
-        System.out.println("\nSTEP FOUR) Please select a query:");
-        
-        //Get user's choice
-        String choice=in.nextLine();
-         
-        //Display the title of the chosen module
-        switch (choice) {
-            case "q1": 
-            	query = "select b.activity1,b.activity2 "                                                                                                                                           
-        				+ "from pattern["                                                                                                                                                                                  
-        				+ "a=SensorEventHouseA(fo3=1)"                                                                                                                                                                     
-        				+ "-> every(b=SensorEventHouseA(ph3=1 and timestamp < 43000))"                                                                                                                                     
-        				+ "where timer:within(1)]"; 
-            	break;
-            case "q2": 
-            	query = "select c.activity1,c.activity2 "                                                                                                                                              
-        				+ "from pattern["                                                                                                                                                                                  
-        				+ "a=SensorEventHouseA(fo3=1)"                                                                                                                                                                     
-        				+ "-> every(b=SensorEventHouseA(ph3=1 and timestamp < 43000))"                                                                                                                                     
-        				+ "where timer:within(1)"
-        				+ "->every(c=SensorEventHouseA((di3=1 or di4=1) and timestamp < 43000))]"; 
-            	break;
-            case "q3": 
-            	query = "select b.activity1,b.activity2 "                                                                                                                                               
-        				+ "from pattern["                                                                                                                                                                          
-        				+ "a=SensorEventHouseA(ph3=1 and timestamp > 43000)"                                                                                                                                       
-        				+ "-> every(b=SensorEventHouseA(te1=1 and timestamp between 43000 and 60000))]" ; 
-            	break;
-            case "q4": 
-            	query = "select b.activity1,b.activity2 "                                                                                                                                              
-        				+ "from pattern["                                                                                                                                                                                  
-        				+ "a=SensorEventHouseA(ph3=1 and timestamp > 67000)"                                                                                                                                               
-        				+ "-> every(b=SensorEventHouseA(te1=1 and timestamp between 67000 and 83000))]"; 
-            	break;
-            case "q5": 
-            	query = "select a.activity1,a.activity2 from pattern[every(a=SensorEventHouseA(co2=1))->b=SensorEventHouseA(co3=1)]"; 
-            	break;
-            case "q6": 
-            	query = "select c.activity1,c.activity2 from pattern ["                                                                                                                                    
-            			+ "every(a=SensorEventHouseA(ir1=1)->c=SensorEventHouseA(fo1=1 or fo2=1 or so1=1)"                                                                                                                 
-            			+ "where timer:within(1 sec))]"; 
-            	break;
-            case "q7": 
-            	query = "select a.activity1,a.activity2 "
-        				+ "from pattern["
-        				+ "every(a=SensorEventHouseA(co2=1))->b=SensorEventHouseA(di2=1)"
-        				+ "where timer:within(1)"
-        				+ "]"; 
-            	break;
-            case "q8": 
-            	query = "select a.activity1,a.activity2 "
-        				+ "from pattern["
-        				+ "every(a=SensorEventHouseA(di1=1))->every(b=SensorEventHouseA(ph6=1))"
-        				+ "where timer:within(1)"
-        				+ "]"; 
-            	break;
-            case "q9": 
-            	query ="select b.activity1,b.activity2 "                                                                                                                                             
-                        + "from pattern["																	                                                                                   
-                        + "every(b=SensorEventHouseB(timestamp<43000 and (ph1=1 or so2=1 or fo1=1 or fo2=1)))"                                                                                                             
-                        + "->"                                                                                                                                                                                             
-                        + "c=SensorEventHouseB((fo1=1 or fo2=1)and timestamp<43000)]" ; 
-            	break;
-            case "q10": 
-            	query = "select activity1,activity2 "                                                                                                                                              
-        				+ "from SensorEventHouseB(pr1=1 or pr2=1)"; 
-            	break;
-            case "q11": 
-            	query = "select b.activity1,b.activity2 from pattern["
-                		+ "every(a=SensorEventHouseB(so1=1))"
-                		+ "->"
-                		+ "every(b=SensorEventHouseB(co6=1))]"; 
-            	break;
-      
-            default: System.out.println("Invalid choice");
-        }//end of switch
-        System.out.println("Please wait while the system elaborates your request...");
-		return query;
-		}
-	
+	/*\*************************************************************************************** *
+	 *  In order to run the activity detection u need to set the following in the run method:   *
+	 *  -) day=day in which to perform detection                                                *
+	 *  -)activitynumber= number of the label of the activity to detect                         *
+	 *  -)house=number of the house where to perform the detection                              *
+	 *  -)query= the query we want to perform                                                   *
+	 ***************************************************************************************** */
 	
 	public void run(){
-	
-		String house= ActivityRecognition.insertHouse();	
-		String day= ActivityRecognition.insertDay();  	
-		int activitynumber= ActivityRecognition.insertActivity(); 						  								
 		
-		String query;     
-		query= ActivityRecognition.selectQuery();//THIS IS THE QUERY WE WANT TO PERFORM 
 		
+		String day="/HouseB_CSV/DAY_2.csv";  //this is the day where we want to check 
+		int activitynumber=4; //need to set the activity that we want to check	  
+		String house="B"; //CAN BE A or B depending on which house we want to consider
+        String query;    //this contains the query that we want to perform  
 
-     	
+		
+		/*ACTIVITIES*******************
+		* ID	ACTIVITY              *
+        * 1	Other                     *
+        * 2	Going Out                 *
+        * 3	Preparing Breakfast       *
+        * 4	Having Breakfast          *
+        * 5	Preparing Lunch           *
+        * 6	Having Lunch              *
+        * 7	Preparing Dinner          *
+        * 8	Having Dinner             *
+        * 9	Washing Dishes            *
+        * 10	Having Snack          *
+        * 11	Sleeping              *
+        * 12	Watching TV           *
+        * 13	Studying              *
+        * 14	Having Shower         *
+        * 15	Toileting             *
+        * 16	Napping               *
+        * 17	Using Internet        *
+        * 18	Reading Book          *
+        * 19	Laundry               *
+        * 20	Shaving               *
+        * 21	Brushing Teeth        *
+        * 22	Talking on the Phone  *
+        * 23	Listening to Music    *
+        * 24	Cleaning              *
+        * 25	Having Conversation   *
+        * 26	Having Guest          *
+        * 27	Changing Clothes      *
+		*******************************/
+		
+//QUERIES HOUSE A:
+		String queryhavingshowerA="select a.activity1,a.activity2 from pattern[every(a=SensorEventHouseA(co2=1))->every(b=SensorEventHouseA(co3=1))]"; //DETECTS WHEN ONE OF THE RESIDENTS IS HAVING A SHOWER activity:/**/
+	
+		//bisogna scegliere la migliore per watching tv, forse è la 2
+		String querywatchingtvA1= "select c.activity1,c.activity2 from pattern ["                                                                                                                                    /**/
+			+ "every(a=SensorEventHouseA(ir1=1)->c=SensorEventHouseA(fo1=1 or fo2=1 or so1=1)"                                                                                                                 /**/
+			+ "where timer:within(1 sec))]" ;                                                                                                   /**/
+
+		String querywatchingtvA2="select b.activity1,b.activity2 "                                                                                                                                                  /**/
+				+ "from pattern["                                                                                                                                                              /**/
+				+ "every(b=SensorEventHouseA(ir1=1)->c=SensorEventHouseA(fo1=1 or fo2=1))]";   
+		/**/
+	                    //ultima aggiunta:                                                                                                                                                                                       /**/
+		String querywatchingtvA3 ="select b.activity1,b.activity2 "
+				+ "from pattern["
+				+ "every(a=SensorEventHouseA(ir1=1)) -> b=SensorEventHouseA(fo1=1 or fo2=1 or so1=1) and c=SensorEventHouseA(ir1=1)"
+				+ "and " 
+				+ "every(d=SensorEventHouseA(fo1=1 or fo2=1 or so1=1) "
+				+ "and e=SensorEventHouseA(ir1=1))"
+				+ "-> f=SensorEventHouseA(fo1=1 or fo2=1 or so1=1)"
+				+ "]";                                                                                                                                                                                                         /**/
+	                                                                                                                                                                                                           /**/
+	                                                                                                           /**/
+	                                                                                                                                                                                                           /**/
+		String querypreparingbreakfastA="select b.activity1,b.activity2 "                                                                                                                                           /**/
+				+ "from pattern["                                                                                                                                                                                  /**/
+				+ "a=SensorEventHouseA(fo3=1 or ph2=1)"                                                                                                                                                                     /**/
+				+ "-> every(b=SensorEventHouseA(ph3=1 and timestamp < 43000))"                                                                                                                                     /**/
+				+ "where timer:within(1)]";                                                                                                                                                                        /**/
+	                                                                                                                                                                                                           /**/
+		String queryhavingbreakfastA="select c.activity1,c.activity2 "                                                                                                                                              /**/
+				+ "from pattern["                                                                                                                                                                                  /**/
+				+ "a=SensorEventHouseA(fo3=1 or ph2=1)"                                                                                                                                                                     /**/
+				+ "-> every(b=SensorEventHouseA(ph3=1 and timestamp < 43000))"                                                                                                                                     /**/
+				+ "where timer:within(1)->every(c=SensorEventHouseA((di3=1 or di4=1) and timestamp < 43000))]";                                                                                                    /**/
+			                                                                                                                                                                                                   /**/
+				                                                                                                                                                  /**/
+	                                                                                                                                                                                                           /**/
+		String querypreparinglunchA="select b.activity1,b.activity2 "                                                                                                                                               /**/
+				+ "from pattern["                                                                                                                                                                          /**/
+				+ "a=SensorEventHouseA(ph3=1 and timestamp > 43000)"                                                                                                                                       /**/
+				+ "-> every(b=SensorEventHouseA(te1=1 and timestamp between 43000 and 60000))]";                                                                                                           /**/
+					                                                                                                                                                                                           /**/
+	                                                                                                                                                                                                           /**/
+	                                                                                                                                                                                                           /**/
+		String querypreparingdinnerA="select b.activity1,b.activity2 "                                                                                                                                              /**/
+				+ "from pattern["                                                                                                                                                                                  /**/
+				+ "a=SensorEventHouseA(ph3=1 and timestamp > 67000)"                                                                                                                                               /**/
+				+ "-> every(b=SensorEventHouseA(te1=1 and timestamp between 67000 and 83000))]";     
+	
+		
+		String querytoiletingA="select a.activity1,a.activity2 "
+				+ "from pattern["
+				+ "every(a=SensorEventHouseA(co2=1))->b=SensorEventHouseA(di2=1)"
+				+ "where timer:within(1)"
+				+ "]";
+	
+		String queryshavingA="select a.activity1,a.activity2 "
+				+ "from pattern["
+				+ "every(a=SensorEventHouseA(di1=1))->every(b=SensorEventHouseA(ph6=1))"
+				+ "where timer:within(1)"
+				+ "]";
+
+
+//QUERIES HOUSE2:
+
+        String queryhavingshowerB="select b.activity1,b.activity2 from pattern["
+        		+ "every(a=SensorEventHouseB(so1=1))"
+        		+ "->"
+        		+ "every(b=SensorEventHouseB(co6=1))]";                                                                                          
+                                                                                              
+                                                                                           
+        String querywatchingtvB="select activity1,activity2 "                                                                                                                                              /**/
+				+ "from SensorEventHouseB(pr1=1 or pr2=1)";                                                         
+                                                                                              
+                 
+     	String queryHavingBreakfastB="select b.activity1,b.activity2 b=SensorEventHouseB(timestamp<43000 and (ph1=1 or so2=1 or fo1=1 or fo2=1)))]";
+		
+			                                                                                                             /**/   
+                 
+
+                                                                                              
+	
+     	query = queryHavingBreakfastB; //THIS IS THE QUERY WE WANT TO PERFORM -> query = queryName 
+		
+		
 		//esper configuration:
 		Configuration configuration = new Configuration();
 		
